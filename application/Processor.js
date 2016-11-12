@@ -3,6 +3,8 @@ import cron from 'cron';
 import moment from 'moment';
 import faker from 'faker';
 import os from 'os';
+import socketio from 'socket.io';
+import _ from 'lodash';
 
 class Processor{
     constructor(){
@@ -15,6 +17,46 @@ class Processor{
     runCronJob(){
         console.log("Start CronJob");
         this.cronJob.start();
+    }
+
+    runSocket(server){
+        let workerData = [];
+
+        socketio.listen(server).on('connection', (socket)=>{
+            this.cronJob = cron.job("*/1 * * * * *", ()=>{
+                let tmpNewWorkerData = [];
+                this._getWorkerData(tmpNewWorkerData);
+
+                if(tmpNewWorkerData.length != workerData.length){
+                    let diff = tmpNewWorkerData.length - workerData.length;
+                    let newWorkerData = _.takeRight(tmpNewWorkerData, diff);
+
+                    console.log(JSON.stringify(newWorkerData));
+                    socket.broadcast.emit('server.data', newWorkerData);
+                    workerData = tmpNewWorkerData;
+                }
+            });
+            this.cronJob.start();
+        });
+    }
+
+    _getWorkerData(workerData){
+        let wData = fs.readFileSync('public/worker.txt');
+        let tmpSplitLine = wData.toString().split(os.EOL);
+
+        _.forEach(tmpSplitLine, (value, index)=>{
+            if(index != 0){
+                let tmpSplitKey = tmpSplitLine[0].split(';');
+                let tmpSplitData = value.split(';');
+                let tmpData = {};
+
+                _.forEach(tmpSplitData, (val, i)=>{
+                    if(val != "") tmpData[tmpSplitKey[i]] = val;
+                });
+
+                if(!_.isEmpty(tmpData)) workerData.push(tmpData);
+            }
+        });
     }
 
     writeRandomDataToFile(){
@@ -37,6 +79,8 @@ class Processor{
     _checkIfHeaderExist(){
         let header = 'ip;namen;wert;date';
     }
+
+
 }
 
 module.exports = Processor;

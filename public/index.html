@@ -1,0 +1,45 @@
+<html>
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        $(function(){
+            var iosocket = io.connect('http://localhost:8888');
+
+            iosocket.on('server.data', function (arrData) {
+                console.log(arrData);
+
+                jQuery.each(arrData, function(i, val){
+                    if(val.ip != undefined){
+                        var d = val.ip + " " + val.namen + " " + val.wert + " " + val.date;
+                        $('#data').append($('<li></li>').text(d));
+                    }
+                });
+            });
+//            iosocket.on('connect', function () {
+//                $('#incomingChatMessages').append($('<li>Connected</li>'));
+//                iosocket.on('data', function(data) {console.log(data);
+//                    $('#incomingChatMessages').append($('<li></li>').text(data));
+//                });
+//                iosocket.on('message', function(message) {
+//                    $('#incomingChatMessages').append($('<li></li>').text(message));console.log(message);
+//                });
+//                iosocket.on('disconnect', function() {
+//                    $('#incomingChatMessages').append('<li>Disconnected</li>');
+//                });
+//            });
+//            $('#outgoingChatMessage').keypress(function(event) {
+//                if(event.which == 13) {
+//                    event.preventDefault();
+//                    iosocket.send($('#outgoingChatMessage').val());
+//                    $('#incomingChatMessages').append($('<li></li>').text($('#outgoingChatMessage').val()));
+//                    $('#outgoingChatMessage').val('');
+//                }
+//            });
+        });
+    </script>
+</head>
+<body>
+Incoming Data: <ul id="data"></ul>
+</body>
+</html>
