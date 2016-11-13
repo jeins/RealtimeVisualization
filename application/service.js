@@ -26,7 +26,7 @@ processor.runCronJob();
 processor.runSocket(app.server);
 
 app.server.listen('8888', 'localhost', ()=>{
-    console.log("Listening on");
+    console.log("Server run on localhost:8888");
 });
 
 export default app;
