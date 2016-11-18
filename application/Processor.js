@@ -31,7 +31,7 @@ class Processor{
                     let diff = tmpNewWorkerData.length - workerData.length;
                     let newWorkerData = _.takeRight(tmpNewWorkerData, diff);
 
-                    console.log(JSON.stringify(newWorkerData));
+                    console.log("send: " + JSON.stringify(newWorkerData));
                     socket.broadcast.emit('server.data', newWorkerData);
                     workerData = tmpNewWorkerData;
                 }

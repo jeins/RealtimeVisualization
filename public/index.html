@@ -3,18 +3,15 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        $(function(){
-            var iosocket = io.connect('http://localhost:8888');
+        var socket = io.connect('ws://localhost:8888/');
+        socket.on('server.data', function (arrData) {
+            console.log(arrData);
 
-            iosocket.on('server.data', function (arrData) {
-                console.log(arrData);
-
-                jQuery.each(arrData, function(i, val){
-                    if(val.ip != undefined){
-                        var d = val.ip + " " + val.namen + " " + val.wert + " " + val.date;
-                        $('#data').append($('<li></li>').text(d));
-                    }
-                });
+            jQuery.each(arrData, function(i, val){
+                if(val.ip != undefined){
+                    var d = val.ip + " " + val.namen + " " + val.wert + " " + val.date;
+                    $('#data').append($('<li></li>').text(d));
+                }
             });
         });
     </script>
