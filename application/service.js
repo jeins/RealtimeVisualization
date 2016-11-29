@@ -12,13 +12,11 @@ app.server = http.createServer(app);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
+app.use(express.static(__dirname + '/../public'));
 
-app.use('/index', (req, res)=>{
+app.all('*', function(req, res) {
     res.writeHead(200, { 'Content-type': 'text/html'});
     res.end(fs.readFileSync(__dirname + '/../public/index.html'));
-});
-app.use('/', (req, res)=>{
-    res.json({"version": "1"});
 });
 
 var processor = new Processor();
