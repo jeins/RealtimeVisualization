@@ -1,7 +1,6 @@
 'use strict';
 
 function Map(){
-    this.vLayer =
     this.leafletMap = this.setAttribute();
     this.leafletMap.fitWorld().zoomIn();
 

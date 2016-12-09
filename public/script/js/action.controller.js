@@ -12,8 +12,8 @@ function Action(map) {
         .range([7, 10]);
     this.colorSet = {
         win: 'green',
-        lose: 'red',
-        netral: 'grey'
+        lost: 'red',
+        draw: 'grey'
     }
 }
 
@@ -58,63 +58,15 @@ Action.prototype.blow = function(x, y, color, callback){
         });
 };
 
-Action.prototype.getMidPoints = function(size, from, to){
-    let master = {
-        x: this.map.latLngToLayerPoint(to).x,
-        y: this.map.latLngToLayerPoint(to).y
+Action.prototype.getMidPoints = function(worker, master){
+    return {
+        x: (this.map.latLngToLayerPoint(master).x + this.map.latLngToLayerPoint(worker).x) / 2,
+        y: (this.map.latLngToLayerPoint(master).y + this.map.latLngToLayerPoint(worker).y) / 2
     };
-    let crawler = {
-        x: this.map.latLngToLayerPoint(from).x,
-        y: this.map.latLngToLayerPoint(from).y
-    };
-
-
-    let midPoint = [
-        (master.x + crawler.x) / 2,
-        (master.y + crawler.y) / 2
-    ];
-
-    if (size == 1) {
-        return [ midPoint ];
-    }
-
-    // let isOdd = size % 2;
-    // let midPoints = [];
-    //
-    // if(isOdd){
-    //     midPoints.push(midPoint);
-    //     size --;
-    // }
-    //
-    // let range = 0.1;
-    // if (size > 2) {
-    //     if (isOdd) {
-    //         range = Math.log(size) / 10;
-    //     } else {
-    //         range = Math.log(size) / 10 * 0.7;
-    //     }
-    // }
-    //
-    // let amplitude;
-    // for (let i = 0, j = 1; i < size; i = i + 2, j ++) {
-    //     amplitude = range / (size / 2) * j;
-    //
-    //     midPoints.push([
-    //         (master.x + crawler.x) / 2 - amplitude * (master.y - crawler.y),
-    //         (master.y + crawler.y) / 2 + amplitude * (master.x - crawler.x)
-    //     ]);
-    //
-    //     midPoints.push([
-    //         (master.x + crawler.x) / 2 - (- amplitude) * (master.y - crawler.y),
-    //         (master.y + crawler.y) / 2 + (- amplitude) * (master.x - crawler.x)
-    //     ]);
-    // }
-    //
-    // return midPoint;
 };
 
 Action.prototype.shoot = function(shots){
-    let color = "#ff0000";
+    let color = this.colorSet[shots.worker.statusPoint];
     let trajectory = d3.svg.line()
         .x(function(d, i) {
             return d.x;
@@ -122,85 +74,70 @@ Action.prototype.shoot = function(shots){
             return d.y;
         }).interpolate("basis");
     let shotContainer = this.mapLayer.append("g");
-    // let master = _(shots).chain()
-    //     .groupBy(function(shot) {
-    //         return shot.master.latitude + "x" + shot.master.longitude;
-    //     }).values().value();
-    let workerCoordinates = new L.LatLng(shots.worker.latitude, shots.worker.longitude);//this.projection([shots[0].worker.longitude, shots[0].worker.latitude]);
+    let workerCoordinates = new L.LatLng(shots.worker.latitude, shots.worker.longitude);
     let masterCoordinates = new L.LatLng(shots.master.latitude, shots.master.longitude);
 
     this.blow(this.map.latLngToLayerPoint(workerCoordinates).x, this.map.latLngToLayerPoint(workerCoordinates).y, color);
 
-    // for (let i = 0; i < master.length; i ++) {
-    //     let shots = master[i];
-        let midPoints = this.getMidPoints(
-            1,
-            workerCoordinates,
-            masterCoordinates
-        );
-        //
-        // for (let j = 0; j < shots.length; j++) {
-        //     let shot = shots[j];
-            let trajectoryData = [{
-                x: this.map.latLngToLayerPoint(workerCoordinates).x,
-                y: this.map.latLngToLayerPoint(workerCoordinates).y
-            }, {
-                x: midPoints[0][0],
-                y: midPoints[0][1]
-            }, {
-                x: this.map.latLngToLayerPoint(masterCoordinates).x,
-                y: this.map.latLngToLayerPoint(masterCoordinates).y
-            }];
+    let midPoints = this.getMidPoints(workerCoordinates,masterCoordinates);
+    let trajectoryData = [{
+        x: this.map.latLngToLayerPoint(workerCoordinates).x,
+        y: this.map.latLngToLayerPoint(workerCoordinates).y
+    }, {
+        x: midPoints.x,
+        y: midPoints.y
+    }, {
+        x: this.map.latLngToLayerPoint(masterCoordinates).x,
+        y: this.map.latLngToLayerPoint(masterCoordinates).y
+    }];
 
-            shotContainer.selectAll(".path")
-                .data([2, 3, 4])
-                .enter()
-                .append("path")
-                .attr("class", "path-0")
-                .attr("d", trajectory(trajectoryData))
-                .attr("stroke", color)
-                .attr("visibility", "hidden")
-                .attr("fill", "none")
-                .attr("stroke-width", function (d) {
-                    return d;
-                });
-        // }
+    shotContainer.selectAll(".path")
+        .data([2, 3, 4])
+        .enter()
+        .append("path")
+        .attr("class", "path-0")
+        .attr("d", trajectory(trajectoryData))
+        .attr("stroke", color)
+        .attr("visibility", "hidden")
+        .attr("fill", "none")
+        .attr("stroke-width", function (d) {
+            return d;
+        });
 
-        let path = shotContainer.selectAll(".path-0");
+    let path = shotContainer.selectAll(".path-0");
 
-        (function (action, path, masterCoordinates) {
-            let totalLength = d3.max(path[0], function (p) {
-                return p.getTotalLength();
-            });
-            let animationTime = action.getDuration(totalLength);
+    (function (action, path, masterCoordinates) {
+        let totalLength = d3.max(path[0], function (p) {
+            return p.getTotalLength();
+        });
+        let animationTime = action.getDuration(totalLength);
 
-            path.attr("stroke-dasharray", "0 0 0 " + totalLength)
-                .attr("visibility", "visible")
+        path.attr("stroke-dasharray", "0 0 0 " + totalLength)
+            .attr("visibility", "visible")
+            .transition()
+            .duration(animationTime / (totalLength / 100))
+            .ease("linear")
+            .attrTween("stroke-dasharray", function (d) {
+                return action.getFirstStageInterpolater(d, totalLength);
+            }).each("end", function () {
+            d3.select(this)
                 .transition()
-                .duration(animationTime / (totalLength / 100))
+                .duration(animationTime)
                 .ease("linear")
                 .attrTween("stroke-dasharray", function (d) {
-                    return action.getFirstStageInterpolater(d, totalLength);
-                }).each("end", function () {
-                d3.select(this)
-                    .transition()
-                    .duration(animationTime)
-                    .ease("linear")
-                    .attrTween("stroke-dasharray", function (d) {
-                        return action.getSecondStageInterpolater(d, totalLength);
-                    })
-                    .call(action.endAll, function (d) {
-                        action.blow(
-                            action.map.latLngToLayerPoint(masterCoordinates).x,
-                            action.map.latLngToLayerPoint(masterCoordinates).y,
-                            color,
-                            function () {
-                                shotContainer.remove();
-                            });
-                    })
-            });
-        })(this, path, masterCoordinates);
-    // }
+                    return action.getSecondStageInterpolater(d, totalLength);
+                })
+                .call(action.endAll, function (d) {
+                    action.blow(
+                        action.map.latLngToLayerPoint(masterCoordinates).x,
+                        action.map.latLngToLayerPoint(masterCoordinates).y,
+                        color,
+                        function () {
+                            shotContainer.remove();
+                        });
+                })
+        });
+    })(this, path, masterCoordinates);
 };
 
 Action.prototype.getFirstStageInterpolater = function(d, totalLength){

@@ -18,7 +18,6 @@ DataProvider.prototype.run = function(){
 DataProvider.prototype.update = function(dataSet){
     let me = this;
     dataSet.forEach(function(data){
-        console.log(data);
         me.action.shoot(data);
     })
 };

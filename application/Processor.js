@@ -9,7 +9,7 @@ import _ from 'lodash';
 class Processor{
     constructor(){
         this.filePath = 'public/worker.txt';
-        this.cronJob = cron.job("*/3 * * * * *", ()=>{
+        this.cronJob = cron.job("*/2 * * * * *", ()=>{
             this.writeRandomDataToFile();
         });
     }
@@ -23,7 +23,7 @@ class Processor{
         let workerData = [];
 
         socketio.listen(server).on('connection', (socket)=>{
-            this.cronJob = cron.job("*/1 * * * * *", ()=>{
+            this.cronJob = cron.job("*/5 * * * * *", ()=>{
                 let tmpNewWorkerData = [];
                 this._getWorkerData(tmpNewWorkerData);
 
@@ -63,7 +63,7 @@ class Processor{
         this._checkIfHeaderExist();
         let randomValue =   faker.internet.ip() + ';' +
                             faker.internet.domainName() + ';' +
-                            Math.floor(Math.random() * 6) + 1 + ';' +
+                            Number(Math.floor(Math.random() * 20) - 10) + ';' +
                             moment().format('YYYY-MM-DD HH:mm:ss');
 
         fs.appendFile(this.filePath, randomValue+ os.EOL, (err)=>{
@@ -81,12 +81,16 @@ class Processor{
     }
 
     _generateResponse(newWorkerData){
-        let response = {};
+        let arrResponse = [];
+        let me = this;
 
-        _.forEach(newWorkerData, (data, index)=>{
+        _.forEach(newWorkerData, (data)=>{
+            let response = {};
+
             response.worker = data;
             response.worker.latitude = faker.address.latitude();
             response.worker.longitude = faker.address.longitude();
+            response.worker.statusPoint = me._getWorkerStatusPoint(data.wert);
 
             response.master = {
                 ip: "127.0.0.1",
@@ -94,9 +98,21 @@ class Processor{
                 latitude: 52.5074494,
                 longitude: 13.4862395
             };
+
+            arrResponse.push(response);
         });
 
-        return [response];
+        return arrResponse;
+    }
+
+    _getWorkerStatusPoint(val){
+        let statusPoint = 'draw';
+
+        if(val != 0){
+            statusPoint = (val > 0) ? 'win' : 'lost';
+        }
+
+        return statusPoint;
     }
 }
 
