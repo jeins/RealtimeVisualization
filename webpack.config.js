@@ -1,7 +1,9 @@
 var debug = process.env.NODE_ENV !== "production";
 var webpack = require('webpack');
 var globalLibraries = {
-    $: "jquery"
+    $: "jquery",
+    d3: "d3",
+    L: "leaflet"
 };
 module.exports = {
     context: __dirname + '/public',

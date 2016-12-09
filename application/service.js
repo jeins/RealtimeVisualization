@@ -6,7 +6,7 @@ import fs from 'fs';
 
 import Processor from './Processor';
 
-var app = express();
+let app = express();
 app.server = http.createServer(app);
 
 app.use(bodyParser.json());
@@ -19,9 +19,9 @@ app.all('*', function(req, res) {
     res.end(fs.readFileSync(__dirname + '/../public/index.html'));
 });
 
-var processor = new Processor();
-processor.runCronJob();
-processor.runSocket(app.server);
+let processor = new Processor();
+// processor.runCronJob();
+// processor.runSocket(app.server);
 
 app.server.listen('8888', 'localhost', ()=>{
     console.log("Server run on localhost:8888");
