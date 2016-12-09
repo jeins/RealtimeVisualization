@@ -9,7 +9,7 @@ import _ from 'lodash';
 class Processor{
     constructor(){
         this.filePath = 'public/worker.txt';
-        this.cronJob = cron.job("*/15 * * * * *", ()=>{
+        this.cronJob = cron.job("*/3 * * * * *", ()=>{
             this.writeRandomDataToFile();
         });
     }
@@ -29,7 +29,7 @@ class Processor{
 
                 if(tmpNewWorkerData.length != workerData.length){
                     let diff = tmpNewWorkerData.length - workerData.length;
-                    let newWorkerData = _.takeRight(tmpNewWorkerData, diff);
+                    let newWorkerData = this._generateResponse(_.takeRight(tmpNewWorkerData, diff));
 
                     console.log("send: " + JSON.stringify(newWorkerData));
                     socket.broadcast.emit('server.data', newWorkerData);
@@ -80,7 +80,24 @@ class Processor{
         let header = 'ip;namen;wert;date';
     }
 
+    _generateResponse(newWorkerData){
+        let response = {};
 
+        _.forEach(newWorkerData, (data, index)=>{
+            response.worker = data;
+            response.worker.latitude = faker.address.latitude();
+            response.worker.longitude = faker.address.longitude();
+
+            response.master = {
+                ip: "127.0.0.1",
+                name: "Master",
+                latitude: 52.5074494,
+                longitude: 13.4862395
+            };
+        });
+
+        return [response];
+    }
 }
 
 module.exports = Processor;
