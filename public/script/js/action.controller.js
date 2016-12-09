@@ -68,9 +68,9 @@ Action.prototype.getMidPoints = function(worker, master){
 Action.prototype.shoot = function(shots){
     let color = this.colorSet[shots.worker.statusPoint];
     let trajectory = d3.svg.line()
-        .x(function(d, i) {
+        .x(function(d) {
             return d.x;
-        }).y(function(d, i) {
+        }).y(function(d) {
             return d.y;
         }).interpolate("basis");
     let shotContainer = this.mapLayer.append("g");
@@ -127,7 +127,7 @@ Action.prototype.shoot = function(shots){
                 .attrTween("stroke-dasharray", function (d) {
                     return action.getSecondStageInterpolater(d, totalLength);
                 })
-                .call(action.endAll, function (d) {
+                .call(action.endAll, function () {
                     action.blow(
                         action.map.latLngToLayerPoint(masterCoordinates).x,
                         action.map.latLngToLayerPoint(masterCoordinates).y,
