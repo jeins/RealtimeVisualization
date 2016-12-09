@@ -10,13 +10,15 @@ DataProvider.prototype.run = function(){
     let me = this;
 
     this.socket.on('server.data', function (dataSet) {
+        console.log(dataSet);
         me.update(dataSet);
     });
 };
 
 DataProvider.prototype.update = function(dataSet){
+    let me = this;
     dataSet.forEach(function(data){
         console.log(data);
-        this.action.shoot(data);
+        me.action.shoot(data);
     })
 };

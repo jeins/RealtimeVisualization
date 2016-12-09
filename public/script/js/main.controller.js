@@ -3,7 +3,7 @@
 function Main(){
     this.map = new Map();
 
-    this.action = new Action(this.map.getMap());
+    this.action = new Action(this.map);
 
     this.data = new DataProvider(this.action);
 }

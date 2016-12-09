@@ -1,13 +1,15 @@
 'use strict';
 
 function Map(){
-    this.map = this.setAttribute();
-    this.map.fitWorld().zoomIn();
-}
+    this.vLayer =
+    this.leafletMap = this.setAttribute();
+    this.leafletMap.fitWorld().zoomIn();
 
-Map.prototype.getMap = function(){
-    return this.map;
-};
+    L.svg().addTo(this.leafletMap);
+
+    this.svg = d3.select("#map").select("svg");
+    this.mapLayer = this.svg.append("g");
+}
 
 Map.prototype.setAttribute = function () {
     let mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
