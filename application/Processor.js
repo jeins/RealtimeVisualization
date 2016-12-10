@@ -9,7 +9,7 @@ import _ from 'lodash';
 class Processor{
     constructor(){
         this.filePath = 'public/worker.txt';
-        this.cronJob = cron.job("*/2 * * * * *", ()=>{
+        this.cronJob = cron.job("*/1 * * * * *", ()=>{
             this.writeRandomDataToFile();
         });
     }
@@ -23,7 +23,7 @@ class Processor{
         let workerData = [];
 
         socketio.listen(server).on('connection', (socket)=>{
-            this.cronJob = cron.job("*/5 * * * * *", ()=>{
+            this.cronJob = cron.job("*/2 * * * * *", ()=>{
                 let tmpNewWorkerData = [];
                 this._getWorkerData(tmpNewWorkerData);
 

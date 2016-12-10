@@ -1,0 +1,30 @@
+{
+  "scripts": [
+    "./public/src/js/dataProvider.controller.js",
+    "./public/src/js/action.controller.js",
+    "./public/src/js/map.controller.js",
+    "./public/src/js/main.controller.js"
+  ],
+  "libs": {
+    "scripts": [
+      "./jquery/dist/jquery.js",
+      "./d3/d3.js",
+      "./leaflet/dist/leaflet.js",
+      "./leaflet-fullscreen/dist/Leaflet.fullscreen.js"
+    ],
+    "styles": [
+      "./leaflet/dist/leaflet.css",
+      "./leaflet-fullscreen/dist/leaflet.fullscreen.css"
+    ],
+    "assets": [
+      {
+        "dist": "images",
+        "path": "./leaflet/dist/images/*"
+      },
+      {
+        "dist": "",
+        "path": "./leaflet-fullscreen/dist/**.png"
+      }
+    ]
+  }
+}

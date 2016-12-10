@@ -12,16 +12,16 @@ app.server = http.createServer(app);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
-app.use(express.static(__dirname + '/../public'));
+app.use(express.static(__dirname + '/../public/dist'));
 
 app.all('*', function(req, res) {
     res.writeHead(200, { 'Content-type': 'text/html'});
-    res.end(fs.readFileSync(__dirname + '/../public/index.html'));
+    res.end(fs.readFileSync(__dirname + '/../public/dist/index.html'));
 });
 
 let processor = new Processor();
-// processor.runCronJob();
-// processor.runSocket(app.server);
+processor.runCronJob();
+processor.runSocket(app.server);
 
 app.server.listen('8888', 'localhost', ()=>{
     console.log("Server run on localhost:8888");
