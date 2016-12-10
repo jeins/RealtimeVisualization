@@ -26,7 +26,7 @@ Action.prototype.endAll = function(transition, callback){
         callback();
     }
 
-    let n = 0;
+    var n = 0;
 
     transition.each(function() {
         ++n;
@@ -66,21 +66,21 @@ Action.prototype.getMidPoints = function(worker, master){
 };
 
 Action.prototype.shoot = function(shots){
-    let color = this.colorSet[shots.worker.statusPoint];
-    let trajectory = d3.svg.line()
+    var color = this.colorSet[shots.worker.statusPoint];
+    var trajectory = d3.svg.line()
         .x(function(d) {
             return d.x;
         }).y(function(d) {
             return d.y;
         }).interpolate("basis");
-    let shotContainer = this.mapLayer.append("g");
-    let workerCoordinates = new L.LatLng(shots.worker.latitude, shots.worker.longitude);
-    let masterCoordinates = new L.LatLng(shots.master.latitude, shots.master.longitude);
+    var shotContainer = this.mapLayer.append("g");
+    var workerCoordinates = new L.LatLng(shots.worker.latitude, shots.worker.longitude);
+    var masterCoordinates = new L.LatLng(shots.master.latitude, shots.master.longitude);
 
     this.blow(this.map.latLngToLayerPoint(workerCoordinates).x, this.map.latLngToLayerPoint(workerCoordinates).y, color);
 
-    let midPoints = this.getMidPoints(workerCoordinates,masterCoordinates);
-    let trajectoryData = [{
+    var midPoints = this.getMidPoints(workerCoordinates,masterCoordinates);
+    var trajectoryData = [{
         x: this.map.latLngToLayerPoint(workerCoordinates).x,
         y: this.map.latLngToLayerPoint(workerCoordinates).y
     }, {
@@ -104,13 +104,13 @@ Action.prototype.shoot = function(shots){
             return d;
         });
 
-    let path = shotContainer.selectAll(".path-0");
+    var path = shotContainer.selectAll(".path-0");
 
     (function (action, path, masterCoordinates) {
-        let totalLength = d3.max(path[0], function (p) {
+        var totalLength = d3.max(path[0], function (p) {
             return p.getTotalLength();
         });
-        let animationTime = action.getDuration(totalLength);
+        var animationTime = action.getDuration(totalLength);
 
         path.attr("stroke-dasharray", "0 0 0 " + totalLength)
             .attr("visibility", "visible")
@@ -141,7 +141,7 @@ Action.prototype.shoot = function(shots){
 };
 
 Action.prototype.getFirstStageInterpolater = function(d, totalLength){
-    let length, offset;
+    var length, offset;
 
     switch (d) {
         case 2 : offset = 0; length = 100; break;
@@ -149,8 +149,8 @@ Action.prototype.getFirstStageInterpolater = function(d, totalLength){
         case 4 : offset = 50; length = 50;break;
     }
 
-    let interpolateLength = d3.interpolate(0, length);
-    let interpolateOffset = d3.interpolate(0, offset);
+    var interpolateLength = d3.interpolate(0, length);
+    var interpolateOffset = d3.interpolate(0, offset);
 
     return function(t) {
         return "0 " + interpolateOffset(t) + " " + interpolateLength(t) + " " + totalLength;
@@ -158,7 +158,7 @@ Action.prototype.getFirstStageInterpolater = function(d, totalLength){
 };
 
 Action.prototype.getSecondStageInterpolater = function(d, totalLength){
-    let length, offset;
+    var length, offset;
 
     switch (d) {
         case 2 : offset = 0; length = 100; break;
@@ -166,7 +166,7 @@ Action.prototype.getSecondStageInterpolater = function(d, totalLength){
         case 4 : offset = 50; length = 50;break;
     }
 
-    let interpolate = d3.interpolate(0, totalLength);
+    var interpolate = d3.interpolate(0, totalLength);
 
     return function(t) {
         return "0 " + (interpolate(t) + offset) + " " + length + " " + (totalLength - interpolate(t));

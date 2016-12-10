@@ -4,6 +4,7 @@ const gulp = require('gulp'),
     run = require('run-sequence'),
     htmlreplace = require('gulp-html-replace'),
     uglify = require('gulp-uglify'),
+    minifyCss = require('gulp-minify-css'),
     config = require('./public/config')
     ;
 
@@ -22,15 +23,11 @@ gulp.task('components', [
 ]);
 
 gulp.task('run', function(cb){
-    run('clean', [
-        'index', 'components'
-    ], cb);
+    run('clean', ['index', 'components'], cb);
 });
 
 gulp.task('built', function(cb){
-    run('clean', [
-        'components', 'compress:index', 'compress:js', 'compress:css', 'clean_deploy'
-    ], cb);
+    run('clean', 'components',['compress:index', 'compress:css', 'compress:js'], 'clean_deploy', cb);
 });
 
 gulp.task('clean', function(){
@@ -81,16 +78,16 @@ gulp.task('merge:css', function(){
 });
 
 gulp.task('compress:js', function(){
-    return gulp.src(config.libs.scripts.concat('/app.js').map(i => PATHS.dist+ `${i}`))
+    return gulp.src(config.libs.scripts.map(function(i){return 'node_modules/' + i.replace('./', '');}).concat(PATHS.dist + 'app.js'))
         .pipe(concat('app.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest(PATHS.dist))
 });
 
 gulp.task('compress:css', function(){
-    return gulp.src(config.libs.styles.concat('/app.css').map(i => PATHS.dist + `${i}`))
+    return gulp.src(config.libs.styles.map(function(i){return 'node_modules/' + i.replace('./', '');}).concat(PATHS.dist + 'app.css'))
         .pipe(concat('app.min.css'))
-        .pipe(uglify())
+        .pipe(minifyCss())
         .pipe(gulp.dest(PATHS.dist))
 });
 

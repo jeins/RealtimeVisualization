@@ -7,7 +7,7 @@ function DataProvider(action){
 }
 
 DataProvider.prototype.run = function(){
-    let me = this;
+    var me = this;
 
     this.socket.on('server.data', function (dataSet) {
         console.log(dataSet);
@@ -16,7 +16,7 @@ DataProvider.prototype.run = function(){
 };
 
 DataProvider.prototype.update = function(dataSet){
-    let me = this;
+    var me = this;
     dataSet.forEach(function(data){
         me.action.shoot(data);
     })
