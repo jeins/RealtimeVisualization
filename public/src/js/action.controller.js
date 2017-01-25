@@ -11,9 +11,9 @@ function Action(map) {
         .domain([1, 2])
         .range([7, 10]);
     this.colorSet = {
-        win: 'green',
-        lost: 'red',
-        draw: 'grey'
+        win: '#23AC20',
+        lost: '#CA2038',
+        draw: '#767676'
     }
 }
 

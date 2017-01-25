@@ -11,11 +11,13 @@
       "./d3/d3.js",
       "./leaflet/dist/leaflet.js",
       "./leaflet-fullscreen/dist/Leaflet.fullscreen.js",
-      "./leaflet.heat/dist/leaflet-heat.js"
+      "./leaflet.heat/dist/leaflet-heat.js",
+      "./prunecluster/dist/PruneCluster.js"
     ],
     "styles": [
       "./leaflet/dist/leaflet.css",
-      "./leaflet-fullscreen/dist/leaflet.fullscreen.css"
+      "./leaflet-fullscreen/dist/leaflet.fullscreen.css",
+      "./prunecluster/dist/LeafletStyleSheet.css"
     ],
     "assets": [
       {
