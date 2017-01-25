@@ -1,7 +1,8 @@
 'use strict';
 
-function DataProvider(action){
+function DataProvider(action, map){
     this.action = action;
+    this.map = map;
 
     this.socket = io.connect('ws://localhost:8888/'); //TODO:: need to be set on config
 }
@@ -18,6 +19,7 @@ DataProvider.prototype.run = function(){
 DataProvider.prototype.update = function(dataSet){
     var me = this;
     dataSet.forEach(function(data){
+        me.map.setMasterLocation(data.master.latitude, data.master.longitude);
         me.action.shoot(data);
     })
 };

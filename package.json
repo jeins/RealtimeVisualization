@@ -32,6 +32,7 @@
     "jquery": "^3.1.1",
     "leaflet": "^1.0.2",
     "leaflet-fullscreen": "^1.0.1",
+    "leaflet.heat": "^0.2.0",
     "lodash": "^4.17.2",
     "moment": "^2.15.1",
     "morgan": "^1.7.0",

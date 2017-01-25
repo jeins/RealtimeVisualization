@@ -12,6 +12,12 @@ function Map(){
     this.mapLayer = this.svg.append("g");
 }
 
+Map.prototype.setMasterLocation = function(latitude, longitude){
+    L.heatLayer([
+        [latitude, longitude, 0.5]
+    ], {radius: 25}).addTo(this.leafletMap);
+};
+
 Map.prototype.setMapWithAttribute = function () {
     var me = this;
 
