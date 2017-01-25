@@ -1,5 +1,11 @@
 'use strict';
 
+/**
+ * data handle
+ * @param action
+ * @param map
+ * @constructor
+ */
 function DataProvider(action, map){
     this.action = action;
     this.map = map;
@@ -7,6 +13,9 @@ function DataProvider(action, map){
     this.socket = io.connect('ws://localhost:8888/'); //TODO:: need to be set on config
 }
 
+/**
+ * get data from socket server
+ */
 DataProvider.prototype.run = function(){
     var me = this;
 
@@ -16,6 +25,13 @@ DataProvider.prototype.run = function(){
     });
 };
 
+/**
+ * update map activity:
+ * - display heat of master location
+ * - display marker of worker location
+ * - animate shoot line from worker to master
+ * @param dataSet
+ */
 DataProvider.prototype.update = function(dataSet){
     var me = this;
     dataSet.forEach(function(data){

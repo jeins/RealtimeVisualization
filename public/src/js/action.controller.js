@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * animation over the map (shoot line & blow circle)
+ * @param map
+ * @constructor
+ */
 function Action(map) {
     this.map = map.leafletMap;
     this.mapLayer = map.mapLayer;
@@ -17,10 +22,20 @@ function Action(map) {
     }
 }
 
+/**
+ * get animate duration
+ * @param length
+ * @returns {number}
+ */
 Action.prototype.getDuration = function(length){
     return length / 1200 * this.animationTime;
 };
 
+/**
+ * action end all animation (blow and shoot line)
+ * @param transition
+ * @param callback
+ */
 Action.prototype.endAll = function(transition, callback){
     if(transition.size() === 0){
         callback();
@@ -37,6 +52,13 @@ Action.prototype.endAll = function(transition, callback){
     });
 };
 
+/**
+ * animate blow circle if the shoot line receive the target / master
+ * @param x
+ * @param y
+ * @param color
+ * @param callback
+ */
 Action.prototype.blow = function(x, y, color, callback){
     this.mapLayer.append('circle')
         .datum(1)
@@ -58,6 +80,12 @@ Action.prototype.blow = function(x, y, color, callback){
         });
 };
 
+/**
+ * get the middle point between two worker and master coordinate
+ * @param worker
+ * @param master
+ * @returns {{x: number, y: number}}
+ */
 Action.prototype.getMidPoints = function(worker, master){
     return {
         x: (this.map.latLngToLayerPoint(master).x + this.map.latLngToLayerPoint(worker).x) / 2,
@@ -65,6 +93,12 @@ Action.prototype.getMidPoints = function(worker, master){
     };
 };
 
+/**
+ * displaying a shoot line from worker to master
+ * and if the shoot line receive the master,
+ * calling method to animate blow circle, then stop all animation
+ * @param shots
+ */
 Action.prototype.shoot = function(shots){
     var color = this.colorSet[shots.worker.statusPoint];
     var trajectory = d3.svg.line()
@@ -140,6 +174,12 @@ Action.prototype.shoot = function(shots){
     })(this, path, masterCoordinates);
 };
 
+/**
+ * calculate the interpolate of the fist line
+ * @param d
+ * @param totalLength
+ * @returns {Function}
+ */
 Action.prototype.getFirstStageInterpolater = function(d, totalLength){
     var length, offset;
 
@@ -157,6 +197,12 @@ Action.prototype.getFirstStageInterpolater = function(d, totalLength){
     };
 };
 
+/**
+ * calculate the interpolate of the next line
+ * @param d
+ * @param totalLength
+ * @returns {Function}
+ */
 Action.prototype.getSecondStageInterpolater = function(d, totalLength){
     var length, offset;
 

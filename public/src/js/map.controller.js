@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * map handle
+ * @constructor
+ */
 function Map(){
     this.leafletMap = this.setMapWithAttribute();
     this.leafletCluster = new PruneClusterForLeaflet();
@@ -16,12 +20,25 @@ function Map(){
     this.leafletMap.addLayer(this.leafletCluster);
 }
 
+/**
+ * set master location from latitude and longitude
+ * the master will be display as a heat
+ * @param latitude
+ * @param longitude
+ */
 Map.prototype.setMasterLocation = function(latitude, longitude){
     L.heatLayer([
         [latitude, longitude, 0.5]
     ], {radius: 25}).addTo(this.leafletMap);
 };
 
+/**
+ * set worker location from latitude and longitude
+ * the status point is needed for marker color: win(green) | draw(grey) | lost(red)
+ * @param latitude
+ * @param longitude
+ * @param statusPoint
+ */
 Map.prototype.setWorkerLocation = function(latitude, longitude, statusPoint){
     var markerColors = this.setMarkerColors();console.log(statusPoint);
     var marker = new PruneCluster.Marker(latitude, longitude, {icon: markerColors[statusPoint]});
@@ -36,6 +53,10 @@ Map.prototype.setWorkerLocation = function(latitude, longitude, statusPoint){
     this.leafletCluster.ProcessView();
 };
 
+/**
+ * setup the marker cluster
+ * this will be collecte the marker in the near
+ */
 Map.prototype.setupMarkerCluster = function(){
     this.leafletCluster.BuildLeafletClusterIcon = function(cluster) {
         var e = new L.Icon.MarkerCluster();
@@ -116,6 +137,11 @@ Map.prototype.setupMarkerCluster = function(){
     });
 };
 
+/**
+ * setup marker color
+ * win => greenMarker | draw => greyMarker | lost => redMarker
+ * @returns {{win: *, draw: *, lost: *}}
+ */
 Map.prototype.setMarkerColors = function(){
     var greenMarker = new L.Icon({
         iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
@@ -147,6 +173,10 @@ Map.prototype.setMarkerColors = function(){
     return {win: greenMarker, draw: greyMarker, lost: redMarker};
 };
 
+/**
+ * setup maps attribute
+ * added full screen map view controller
+ */
 Map.prototype.setMapWithAttribute = function () {
     var me = this;
 
@@ -158,6 +188,9 @@ Map.prototype.setMapWithAttribute = function () {
     });
 };
 
+/**
+ * setup map layer
+ */
 Map.prototype.setLayer = function () {
     var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
             '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
