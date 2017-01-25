@@ -1,14 +1,18 @@
-import http from 'http';
-import express from 'express';
-import bodyParser from 'body-parser';
-import morgan from 'morgan';
-import fs from 'fs';
+'use strict';
 
-import Processor from './Processor';
+const http = require('http'),
+    express = require('express'),
+    bodyParser = require('body-parser'),
+    morgan = require('morgan'),
+    fs = require('fs');
 
-let app = express();
+const Processor = require('./Processor');
+const app = express();
+
 app.server = http.createServer(app);
 
+app.set('port', 8888);
+app.set('host', 'localhost');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
@@ -19,12 +23,11 @@ app.all('*', function(req, res) {
     res.end(fs.readFileSync(__dirname + '/../public/dist/index.html'));
 });
 
-let processor = new Processor();
-processor.runCronJob();
-processor.runSocket(app.server);
+Processor.runCronJob();
+Processor.runSocket(app.server);
 
-app.server.listen('8888', 'localhost', ()=>{
-    console.log("Server run on localhost:8888");
+app.server.listen(app.get('port'), app.get('host'), ()=>{
+    console.log('Service is running at http://%s:%d', app.get('host'), app.get('port'));
 });
 
-export default app;
+module.exports = app;
