@@ -40,7 +40,7 @@ Map.prototype.setMasterLocation = function(latitude, longitude){
  * @param statusPoint
  */
 Map.prototype.setWorkerLocation = function(latitude, longitude, statusPoint){
-    var markerColors = this.setMarkerColors();console.log(statusPoint);
+    var markerColors = this.setMarkerColors();
     var marker = new PruneCluster.Marker(latitude, longitude, {icon: markerColors[statusPoint]});
 
     switch (statusPoint){
