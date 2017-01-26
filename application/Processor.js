@@ -3,18 +3,17 @@
 const fs = require('fs'),
     cron = require('cron'),
     moment = require('moment'),
-    faker = require('faker'),
+    faker = require('faker/locale/de'),
     os = require('os'),
     socketIo = require('socket.io'),
+    geoip = require('geoip-lite'),
+    rest = require('restler'),
      _ = require('lodash');
 
 let filePath, cronJob;
 
 const Processor = function(){
     filePath = 'public/worker.txt';
-    cronJob = cron.job("*/1 * * * * *", ()=>{
-        _writeRandomDataToFile();
-    });
 };
 
 Processor.prototype = {
@@ -22,7 +21,10 @@ Processor.prototype = {
      * run cron job
      */
     runCronJob: ()=>{
-        console.log("Start CronJob");
+        console.log("start cron job to generate random data");
+        cronJob = cron.job("*/1 * * * * *", ()=>{
+            _writeRandomDataToFile();
+        });
         cronJob.start();
     },
 
@@ -116,6 +118,39 @@ function _generateResponse(newWorkerData){
     });
 
     return arrResponse;
+}
+
+//TODO: need async
+function _getLatLonFromIp(ip, getFromApi, cb){
+    let location = {
+        latitude: faker.address.latitude(),
+        longitude: faker.address.longitude()
+    };
+
+    if(getFromApi){
+        let freeGeoIpUrl = 'http://freegeoip.net/json/?q=' + ip;
+
+        rest.get(freeGeoIpUrl).on('complete', (result)=>{
+            if(result instanceof Error){
+                console.log('Error: ', result.message);
+            } else{
+                location.latitude = result.latitude;
+                location.longitude = result.longitude;
+            }
+
+            cb(location);
+        });
+    } else{
+        let geo = geoip.lookup(data.ip);
+
+        if (_.isEmpty(geo.ll)){
+            location.latitude = geo.ll[0];
+            location.longitude = geo.ll[1];
+        }
+
+        cb(location);
+    }
+
 }
 
 function _getWorkerStatusPoint(val){

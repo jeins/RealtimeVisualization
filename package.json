@@ -24,6 +24,7 @@
     "d3": "^3.5.17",
     "express": "^4.14.0",
     "faker": "^3.1.0",
+    "geoip-lite": "^1.1.8",
     "jquery": "^3.1.1",
     "leaflet": "^1.0.2",
     "leaflet-fullscreen": "^1.0.1",
@@ -32,6 +33,7 @@
     "moment": "^2.15.1",
     "morgan": "^1.7.0",
     "prunecluster": "^2.0.0-beta.3",
+    "restler": "^3.4.0",
     "socket.io": "^1.5.1"
   }
 }
