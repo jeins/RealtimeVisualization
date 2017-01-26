@@ -35,8 +35,8 @@ DataProvider.prototype.run = function(){
 DataProvider.prototype.update = function(dataSet){
     var me = this;
     dataSet.forEach(function(data){
-        // me.map.setMasterLocation(data.master.latitude, data.master.longitude);
-        me.map.setWorkerLocation(data.worker.latitude, data.worker.longitude, data.worker.statusPoint);
+        // me.map.setMasterLocation(data.master);
+        me.map.setWorkerLocation(data.worker);
         me.action.shoot(data);
     })
 };

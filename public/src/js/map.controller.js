@@ -26,9 +26,9 @@ function Map(){
  * @param latitude
  * @param longitude
  */
-Map.prototype.setMasterLocation = function(latitude, longitude){
+Map.prototype.setMasterLocation = function(master){
     L.heatLayer([
-        [latitude, longitude, 0.5]
+        [master.latitude, master.longitude, 0.5]
     ], {radius: 25}).addTo(this.leafletMap);
 };
 
@@ -39,11 +39,17 @@ Map.prototype.setMasterLocation = function(latitude, longitude){
  * @param longitude
  * @param statusPoint
  */
-Map.prototype.setWorkerLocation = function(latitude, longitude, statusPoint){
+Map.prototype.setWorkerLocation = function(worker){
     var markerColors = this.setMarkerColors();
-    var marker = new PruneCluster.Marker(latitude, longitude, {icon: markerColors[statusPoint]});
+    var marker = new PruneCluster.Marker(worker.latitude, worker.longitude);
 
-    switch (statusPoint){
+    marker.data.icon = markerColors[worker.statusPoint];
+    marker.data.popup = "Name: " + worker.namen + "<br>" +
+                        "Ip: " + worker.ip + "<br>" +
+                        "Last Point: " + worker.wert + "<br>" +
+                        "Last Update: " + worker.date;
+
+    switch (worker.statusPoint){
         case 'win': marker.category = 0; break;
         case 'draw': marker.category = 1; break;
         case 'lost': marker.category = 2; break;
