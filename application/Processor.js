@@ -101,10 +101,12 @@ function _generateResponse(newWorkerData){
 
     _.forEach(newWorkerData, (data)=>{
         let response = {};
+        let getRandomLocation = _getRandomDELocation();
+        let location = getRandomLocation[Math.floor(Math.random() * (_.size(getRandomLocation)-1))];
 
         response.worker = data;
-        response.worker.latitude = faker.address.latitude();
-        response.worker.longitude = faker.address.longitude();
+        response.worker.latitude = location.latitude;
+        response.worker.longitude = location.longitude;
         response.worker.statusPoint = _getWorkerStatusPoint(data.wert);
 
         response.master = {
@@ -118,6 +120,22 @@ function _generateResponse(newWorkerData){
     });
 
     return arrResponse;
+}
+
+function _getRandomDELocation(){
+    return [
+        {latitude: 51.9455, longitude: 13.8852},
+        {latitude: 52.357756, longitude: 8.032782},
+        {latitude: 50.801353, longitude: 8.362372},
+        {latitude: 49.349033, longitude: 11.328680},
+        {latitude: 49.988955, longitude: 7.747137},
+        {latitude: 48.787614, longitude: 8.648016},
+        {latitude: 48.584530, longitude: 8.296454},
+        {latitude: 48.307606, longitude: 8.296454},
+        {latitude: 47.985070, longitude: 7.878973},
+        {latitude: 53.444489, longitude: 10.823309},
+        {latitude: 53.155600, longitude: 7.637274}
+    ]
 }
 
 //TODO: need async

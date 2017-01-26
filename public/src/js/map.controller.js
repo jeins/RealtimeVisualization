@@ -9,8 +9,8 @@ function Map(){
     this.leafletCluster = new PruneClusterForLeaflet();
     this.setupMarkerCluster();
 
-    this.leafletMap.fitWorld().zoomIn();
-    // this.leafletMap.setView([50.763134, 10.4775125], 6);
+    // this.leafletMap.fitWorld().zoomIn();
+    this.leafletMap.setView([50.763134, 10.4775125], 6);
 
     L.svg().addTo(this.leafletMap);
 
@@ -23,21 +23,19 @@ function Map(){
 /**
  * set master location from latitude and longitude
  * the master will be display as a heat
- * @param latitude
- * @param longitude
+ * @param master
  */
 Map.prototype.setMasterLocation = function(master){
-    L.heatLayer([
-        [master.latitude, master.longitude, 0.5]
-    ], {radius: 25}).addTo(this.leafletMap);
+    // L.heatLayer([
+    //     [master.latitude, master.longitude, 0.5]
+    // ], {radius: 25}).addTo(this.leafletMap);
+    L.marker([master.latitude, master.longitude]).bindPopup("Master").addTo(this.leafletMap);
 };
 
 /**
  * set worker location from latitude and longitude
  * the status point is needed for marker color: win(green) | draw(grey) | lost(red)
- * @param latitude
- * @param longitude
- * @param statusPoint
+ * @param worker
  */
 Map.prototype.setWorkerLocation = function(worker){
     var markerColors = this.setMarkerColors();
