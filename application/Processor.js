@@ -22,7 +22,7 @@ Processor.prototype = {
      */
     runCronJob: ()=>{
         console.log("start cron job to generate random data");
-        cronJob = cron.job("*/1 * * * * *", ()=>{
+        cronJob = cron.job("*/3 * * * * *", ()=>{
             _writeRandomDataToFile();
         });
         cronJob.start();
@@ -36,7 +36,7 @@ Processor.prototype = {
         let workerData = [];
 
         socketIo.listen(server).on('connection', (socket)=>{
-            cronJob = cron.job("*/2 * * * * *", ()=>{
+            cronJob = cron.job("*/1 * * * * *", ()=>{
                 let tmpNewWorkerData = [];
                 _getWorkerData(tmpNewWorkerData);
 
@@ -115,6 +115,8 @@ function _generateResponse(newWorkerData){
             latitude: 52.5074494,
             longitude: 13.4862395
         };
+
+        response.sendAt = moment().format('YYYY-MM-DD HH:mm:ss');
 
         arrResponse.push(response);
     });

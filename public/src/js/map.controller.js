@@ -16,8 +16,6 @@ function Map(){
 
     this.svg = d3.select("#map").select("svg");
     this.mapLayer = this.svg.append("g");
-
-    this.leafletMap.addLayer(this.leafletCluster);
 }
 
 /**
@@ -37,15 +35,12 @@ Map.prototype.setMasterLocation = function(master){
  * the status point is needed for marker color: win(green) | draw(grey) | lost(red)
  * @param worker
  */
-Map.prototype.setWorkerLocation = function(worker){
-    var markerColors = this.setMarkerColors();
+Map.prototype.setWorkerLocationWithCluster = function(worker){
     var marker = new PruneCluster.Marker(worker.latitude, worker.longitude);
+    var markerIconData = this.getWorkerIconData(worker);
 
-    marker.data.icon = markerColors[worker.statusPoint];
-    marker.data.popup = "Name: " + worker.namen + "<br>" +
-                        "Ip: " + worker.ip + "<br>" +
-                        "Last Point: " + worker.wert + "<br>" +
-                        "Last Update: " + worker.date;
+    marker.data.icon = markerIconData.icon;
+    marker.data.popup = markerIconData.data;
 
     switch (worker.statusPoint){
         case 'win': marker.category = 0; break;
@@ -55,6 +50,29 @@ Map.prototype.setWorkerLocation = function(worker){
 
     this.leafletCluster.RegisterMarker(marker);
     this.leafletCluster.ProcessView();
+
+    this.leafletMap.addLayer(this.leafletCluster);
+};
+
+Map.prototype.setWorkerLocation = function(worker){
+    var markerIconData = this.getWorkerIconData(worker);
+    var marker = new L.marker([worker.latitude, worker.longitude], {icon: markerIconData.icon});
+
+    marker.bindPopup(markerIconData.data);
+    this.leafletMap.addLayer(marker);
+};
+
+Map.prototype.getWorkerIconData = function(worker){
+    var markerColors = this.setMarkerColors();
+    var data =  "Name: " + worker.namen + "<br>" +
+                "Ip: " + worker.ip + "<br>" +
+                "Last Point: " + worker.wert + "<br>" +
+                "Last Update: " + worker.date;
+
+    return {
+        icon: markerColors[worker.statusPoint],
+        data: data
+    };
 };
 
 /**
@@ -149,7 +167,7 @@ Map.prototype.setupMarkerCluster = function(){
 Map.prototype.setMarkerColors = function(){
     var greenMarker = new L.Icon({
         iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        // shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
@@ -158,7 +176,7 @@ Map.prototype.setMarkerColors = function(){
 
     var greyMarker = new L.Icon({
         iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        // shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
@@ -167,7 +185,7 @@ Map.prototype.setMarkerColors = function(){
 
     var redMarker = new L.Icon({
         iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        // shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
@@ -199,7 +217,7 @@ Map.prototype.setLayer = function () {
     var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
             '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
             'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-        mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpandmbXliNDBjZWd2M2x6bDk3c2ZtOTkifQ._QA7i5Mpkd_m30IGElHziw';
+        mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
 
     return L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr});
 };
