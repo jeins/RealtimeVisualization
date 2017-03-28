@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs'),
+    path = require('path'),
     cron = require('cron'),
     moment = require('moment'),
     faker = require('faker/locale/de'),
@@ -55,7 +56,7 @@ Processor.prototype = {
 };
 
 function _getWorkerData(workerData){
-    let wData = fs.readFileSync('public/worker.txt');
+    let wData = fs.readFileSync(path.resolve(__dirname) + '/../public/worker.txt');
     let tmpSplitLine = wData.toString().split(os.EOL);
 
     _.forEach(tmpSplitLine, (value, index)=>{
