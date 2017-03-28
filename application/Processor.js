@@ -14,7 +14,7 @@ const fs = require('fs'),
 let filePath, cronJob;
 
 const Processor = function(){
-    filePath = 'public/worker.txt';
+    filePath = path.resolve(__dirname) + '/../public/worker.txt';
 };
 
 Processor.prototype = {
@@ -46,7 +46,7 @@ Processor.prototype = {
                     let newWorkerData = _generateResponse(_.takeRight(tmpNewWorkerData, diff));
 
                     console.log("send: " + JSON.stringify(newWorkerData));
-                    socket.broadcast.emit('server.data', newWorkerData);
+                    socket.emit('server.data', newWorkerData);
                     workerData = tmpNewWorkerData;
                 }
             });
@@ -56,7 +56,7 @@ Processor.prototype = {
 };
 
 function _getWorkerData(workerData){
-    let wData = fs.readFileSync(path.resolve(__dirname) + '/../public/worker.txt');
+    let wData = fs.readFileSync(filePath);
     let tmpSplitLine = wData.toString().split(os.EOL);
 
     _.forEach(tmpSplitLine, (value, index)=>{
