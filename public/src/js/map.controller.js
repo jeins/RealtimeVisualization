@@ -27,7 +27,9 @@ Map.prototype.setMasterLocation = function(master){
     // L.heatLayer([
     //     [master.latitude, master.longitude, 0.5]
     // ], {radius: 25}).addTo(this.leafletMap);
-    L.marker([master.latitude, master.longitude]).bindPopup("Master").addTo(this.leafletMap);
+    var icon = new L.Icon.Default();
+    icon.options.shadowSize = [0,0];
+    L.marker([master.latitude, master.longitude], {icon : icon}).bindPopup("Master").addTo(this.leafletMap);
 };
 
 /**

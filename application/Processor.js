@@ -22,7 +22,7 @@ Processor.prototype = {
      */
     runCronJob: ()=>{
         console.log("start cron job to generate random data");
-        cronJob = cron.job("*/3 * * * * *", ()=>{
+        cronJob = cron.job("*/5 * * * * *", ()=>{
             _writeRandomDataToFile();
         });
         cronJob.start();
@@ -36,7 +36,7 @@ Processor.prototype = {
         let workerData = [];
 
         socketIo.listen(server).on('connection', (socket)=>{
-            cronJob = cron.job("*/1 * * * * *", ()=>{
+            cronJob = cron.job("*/3 * * * * *", ()=>{
                 let tmpNewWorkerData = [];
                 _getWorkerData(tmpNewWorkerData);
 
