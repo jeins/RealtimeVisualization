@@ -8,8 +8,6 @@ const express = require('express'),
 const Processor = require('./Processor');
 const app = express();
 
-// app.server = http.createServer(app);
-
 app.set('port', 8888);
 app.set('host', 'localhost');
 app.use(bodyParser.json());
