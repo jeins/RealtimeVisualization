@@ -1,7 +1,6 @@
 'use strict';
 
-const http = require('http'),
-    express = require('express'),
+const express = require('express'),
     bodyParser = require('body-parser'),
     morgan = require('morgan'),
     fs = require('fs');
@@ -9,7 +8,7 @@ const http = require('http'),
 const Processor = require('./Processor');
 const app = express();
 
-app.server = http.createServer(app);
+// app.server = http.createServer(app);
 
 app.set('port', 8888);
 app.set('host', 'localhost');
@@ -24,10 +23,7 @@ app.all('*', function(req, res) {
 });
 
 Processor.runCronJob();
-Processor.runSocket(app.server);
-
-app.server.listen(app.get('port'), app.get('host'), ()=>{
-    console.log('Service is running at http://%s:%d', app.get('host'), app.get('port'));
-});
+// Processor.runSocket(app);
+Processor.runSSE(app);
 
 module.exports = app;

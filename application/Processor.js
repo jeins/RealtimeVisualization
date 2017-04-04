@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs'),
+    http = require('http'),
     path = require('path'),
     cron = require('cron'),
     moment = require('moment'),
@@ -9,6 +10,8 @@ const fs = require('fs'),
     socketIo = require('socket.io'),
     geoip = require('geoip-lite'),
     rest = require('restler'),
+    serveStatic = require('serve-static'),
+    SSE = require('sse'),
      _ = require('lodash');
 
 let filePath, cronJob;
@@ -33,15 +36,16 @@ Processor.prototype = {
      * waiting if client connect with server and send data via socket
      * @param server
      */
-    runSocket: (server)=>{
+    runSocket: (app)=>{
         let workerData = [];
 
-        socketIo.listen(server).on('connection', (socket)=>{
-            cronJob = cron.job("*/3 * * * * *", ()=>{
-                let tmpNewWorkerData = [];
-                _getWorkerData(tmpNewWorkerData);
+        app.server = http.createServer(app);
 
-                if(tmpNewWorkerData.length != workerData.length){
+        socketIo.listen(app.server).on('connection', (socket)=>{
+            cronJob = cron.job("*/3 * * * * *", ()=>{
+                let tmpNewWorkerData =  _getWorkerData();
+
+                if(tmpNewWorkerData.length !== workerData.length){
                     let diff = tmpNewWorkerData.length - workerData.length;
                     let newWorkerData = _generateResponse(_.takeRight(tmpNewWorkerData, diff));
 
@@ -52,10 +56,51 @@ Processor.prototype = {
             });
             cronJob.start();
         });
+
+        app.server.listen(app.get('port'), app.get('host'), ()=>{
+            console.log('Service is running at http://%s:%d', app.get('host'), app.get('port'));
+        });
+    },
+
+    runSSE: (app)=>{
+        let workerData = [];
+
+        let server = app.listen(app.get('port'), function (err) {
+            if(err) throw err;
+            console.log('Service is running at http://%s:%d', app.get('host'), app.get('port'));
+        });
+        let sse = new SSE(server);
+        sse.on('connection', function (connection) {
+            console.log('new connection');
+            let pusher = setInterval(function () {
+
+                let tmpNewWorkerData = _getWorkerData();
+
+                if(tmpNewWorkerData.length !== workerData.length){
+                    let diff = tmpNewWorkerData.length - workerData.length;
+                    let newWorkerData = _generateResponse(_.takeRight(tmpNewWorkerData, diff));
+
+                    console.log("send: " + JSON.stringify(newWorkerData));
+
+                    connection.send({
+                        event: 'server.data',
+                        data: JSON.stringify(newWorkerData)
+                    });
+
+                    workerData = tmpNewWorkerData;
+                }
+            }, 1000);
+
+            connection.on('close', function () {
+                console.log('lost connection');
+                clearInterval(pusher);
+            });
+        })
     }
 };
 
-function _getWorkerData(workerData){
+function _getWorkerData(){
+    let workerData = [];
     let wData = fs.readFileSync(filePath);
     let tmpSplitLine = wData.toString().split(os.EOL);
 
@@ -72,6 +117,8 @@ function _getWorkerData(workerData){
             if(!_.isEmpty(tmpData)) workerData.push(tmpData);
         }
     });
+
+    return workerData;
 }
 
 function _writeRandomDataToFile(){

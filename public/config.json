@@ -12,7 +12,8 @@
       "./leaflet/dist/leaflet.js",
       "./leaflet-fullscreen/dist/Leaflet.fullscreen.js",
       "./leaflet.heat/dist/leaflet-heat.js",
-      "./prunecluster/dist/PruneCluster.js"
+      "./prunecluster/dist/PruneCluster.js",
+      "./eventsource/example/eventsource-polyfill.js"
     ],
     "styles": [
       "./leaflet/dist/leaflet.css",

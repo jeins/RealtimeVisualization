@@ -10,7 +10,8 @@ function DataProvider(action, map){
     this.action = action;
     this.map = map;
 
-    this.socket = io.connect('ws://localhost:8888/'); //TODO:: need to be set on config
+    // this.socket = io.connect('ws://localhost:8888/'); //TODO:: need to be set on config
+    this.sse = new EventSource('/sse');
 }
 
 /**
@@ -19,9 +20,13 @@ function DataProvider(action, map){
 DataProvider.prototype.run = function(){
     var me = this;
 
-    this.socket.on('server.data', function (dataSet) {
-        console.log(dataSet);
-        me.update(dataSet);
+    // this.socket.on('server.data', function (dataSet) {
+    //     console.log(dataSet);
+    //     me.update(dataSet);
+    // });
+    this.sse.addEventListener('server.data', function(dataSet){
+        console.log(dataSet.data);
+        me.update(JSON.parse(dataSet.data));
     });
 };
 
