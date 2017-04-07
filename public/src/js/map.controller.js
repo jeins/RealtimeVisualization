@@ -16,6 +16,7 @@ function Map(){
 
     this.svg = d3.select("#map").select("svg");
     this.mapLayer = this.svg.append("g");
+    this.markers = [];
 }
 
 /**
@@ -58,9 +59,20 @@ Map.prototype.setWorkerLocationWithCluster = function(worker){
 
 Map.prototype.setWorkerLocation = function(worker){
     var markerIconData = this.getWorkerIconData(worker);
-    var marker = new L.marker([worker.latitude, worker.longitude], {icon: markerIconData.icon});
+    var markerKey = md5(worker.latitude + worker.longitude);
+    var marker;
+console.log(markerKey);
+console.log(this.markers);
+    if(this.markers.indexOf(markerKey) >= 0){
+        marker = L.marker([worker.latitude, worker.longitude], {icon: markerIconData.icon});
+        marker.bindPopup(markerIconData.data);
+    } else{
+        this.markers.push(markerKey);
 
-    marker.bindPopup(markerIconData.data);
+        marker = new L.marker([worker.latitude, worker.longitude], {icon: markerIconData.icon});
+        marker.bindPopup(markerIconData.data);
+    }
+
     this.leafletMap.addLayer(marker);
 };
 
