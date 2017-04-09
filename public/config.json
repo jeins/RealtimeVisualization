@@ -7,11 +7,9 @@
   ],
   "libs": {
     "scripts": [
-      "./jquery/dist/jquery.js",
       "./d3/d3.js",
       "./leaflet/dist/leaflet.js",
       "./leaflet-fullscreen/dist/Leaflet.fullscreen.js",
-      "./leaflet.heat/dist/leaflet-heat.js",
       "./prunecluster/dist/PruneCluster.js",
       "./eventsource/example/eventsource-polyfill.js",
       "./blueimp-md5/js/md5.min.js"

@@ -25,16 +25,13 @@ function Map(){
  * @param master
  */
 Map.prototype.setMasterLocation = function(master){
-    // L.heatLayer([
-    //     [master.latitude, master.longitude, 0.5]
-    // ], {radius: 25}).addTo(this.leafletMap);
     var icon = new L.Icon.Default();
     icon.options.shadowSize = [0,0];
     L.marker([master.latitude, master.longitude], {icon : icon}).bindPopup("Master").addTo(this.leafletMap);
 };
 
 /**
- * set worker location from latitude and longitude
+ * set worker location from latitude and longitude with cluster (if zoom out cluster will be displayed)
  * the status point is needed for marker color: win(green) | draw(grey) | lost(red)
  * @param worker
  */
@@ -57,12 +54,17 @@ Map.prototype.setWorkerLocationWithCluster = function(worker){
     this.leafletMap.addLayer(this.leafletCluster);
 };
 
+/**
+ * set worker location from latitude and longitude
+ * the marker info will be override if marker already exist
+ * the status point is needed for marker color: win(green) | draw(grey) | lost(red)
+ * @param worker
+ */
 Map.prototype.setWorkerLocation = function(worker){
     var markerIconData = this.getWorkerIconData(worker);
     var markerKey = md5(worker.latitude + worker.longitude);
     var marker;
-console.log(markerKey);
-console.log(this.markers);
+
     if(this.markers.indexOf(markerKey) >= 0){
         marker = L.marker([worker.latitude, worker.longitude], {icon: markerIconData.icon});
         marker.bindPopup(markerIconData.data);
