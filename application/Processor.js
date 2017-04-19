@@ -10,7 +10,6 @@ const fs = require('fs'),
     socketIo = require('socket.io'),
     geoip = require('geoip-lite'),
     rest = require('restler'),
-    serveStatic = require('serve-static'),
     SSE = require('sse'),
      _ = require('lodash');
 
