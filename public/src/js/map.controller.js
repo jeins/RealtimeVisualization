@@ -36,16 +36,25 @@ Map.prototype.setMasterLocation = function(master){
  * @param worker
  */
 Map.prototype.setWorkerLocationWithCluster = function(worker){
-    var marker = new PruneCluster.Marker(worker.latitude, worker.longitude);
     var markerIconData = this.getWorkerIconData(worker);
+    var markerKey = md5(worker.latitude + worker.longitude);
+    var marker;
 
-    marker.data.icon = markerIconData.icon;
-    marker.data.popup = markerIconData.data;
+    if(this.markers.indexOf(markerKey) >= 0){
+        marker = PruneCluster.Marker(worker.latitude, worker.longitude);
+        marker.data.popup = markerIconData.data;
+    } else{
+        this.markers.push(markerKey);
 
-    switch (worker.statusPoint){
-        case 'win': marker.category = 0; break;
-        case 'draw': marker.category = 1; break;
-        case 'lost': marker.category = 2; break;
+        marker = new PruneCluster.Marker(worker.latitude, worker.longitude);
+        marker.data.icon = markerIconData.icon;
+        marker.data.popup = markerIconData.data;
+
+        switch (worker.statusPoint){
+            case 'win': marker.category = 0; break;
+            case 'draw': marker.category = 1; break;
+            case 'lost': marker.category = 2; break;
+        }
     }
 
     this.leafletCluster.RegisterMarker(marker);
@@ -106,7 +115,7 @@ Map.prototype.setupMarkerCluster = function(){
 
     L.Icon.MarkerCluster = L.Icon.extend({
         options: {
-            iconSize: new L.Point(44, 44),
+            iconSize: new L.Point(48, 48),
             className: 'prunecluster leaflet-markercluster-icon'
         },
 
@@ -129,7 +138,7 @@ Map.prototype.setupMarkerCluster = function(){
                 '#23AC20', //win
                 '#767676', //draw
                 '#CA2038'  //lost
-            ];
+            ],pi2 = Math.PI * 2;
 
             var lol = 0;
             var start = 0;
@@ -140,28 +149,32 @@ Map.prototype.setupMarkerCluster = function(){
 
 
                 if (size > 0) {
+
                     canvas.beginPath();
-                    canvas.moveTo(22, 22);
+
+                    var angle = Math.PI/4*i;
+                    var posx = Math.cos(angle) * 18, posy = Math.sin(angle) * 18;
+
+
+                    var xa = 0, xb = 1, ya = 4, yb = 8;
+
+                    // var r = ya + (size - xa) * ((yb - ya) / (xb - xa));
+                    var r = ya + size * (yb - ya);
+
+
+                    //canvas.moveTo(posx, posy);
+                    canvas.arc(24+posx,24+posy, r, 0, pi2);
                     canvas.fillStyle = colors[i];
-                    var from = start + 0.14,
-                        to = start + size * Math.PI * 2;
-
-                    if (to < from) {
-                        from = start;
-                    }
-                    canvas.arc(22,22,22, from, to);
-
-                    start = start + size * Math.PI * 2;
-                    canvas.lineTo(22,22);
                     canvas.fill();
                     canvas.closePath();
                 }
+
 
             }
 
             canvas.beginPath();
             canvas.fillStyle = 'white';
-            canvas.arc(22, 22, 18, 0, Math.PI*2);
+            canvas.arc(24, 24, 16, 0, Math.PI*2);
             canvas.fill();
             canvas.closePath();
 
@@ -170,7 +183,7 @@ Map.prototype.setupMarkerCluster = function(){
             canvas.textBaseline = 'middle';
             canvas.font = 'bold 12px sans-serif';
 
-            canvas.fillText(this.population, 22, 22, 40);
+            canvas.fillText(this.population, 24, 24, 48);
         }
     });
 };
