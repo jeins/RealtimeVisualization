@@ -41,7 +41,7 @@ DataProvider.prototype.update = function(dataSet){
     var me = this;
     dataSet.forEach(function(data){
         me.map.setMasterLocation(data.master);
-        me.map.setWorkerLocation(data.worker);
+        me.map.setWorkerLocationWithCluster(data.worker);
         me.action.shoot(data);
     })
 };

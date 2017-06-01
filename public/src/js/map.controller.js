@@ -39,26 +39,38 @@ Map.prototype.setWorkerLocationWithCluster = function(worker){
     var markerIconData = this.getWorkerIconData(worker);
     var markerKey = md5(worker.latitude + worker.longitude);
     var marker;
-//TODO:fix if markers already exist
-    if(this.markers.indexOf(markerKey) >= 0){
-        marker = PruneCluster.Marker(worker.latitude, worker.longitude);
-        marker.data.popup = markerIconData.data;
-    } else{
-        this.markers.push(markerKey);
+    var newMarker = false;
 
+    if(this.markers.indexOf(markerKey) < 0){
         marker = new PruneCluster.Marker(worker.latitude, worker.longitude);
-        marker.data.icon = markerIconData.icon;
-        marker.data.popup = markerIconData.data;
+        newMarker = true;
+        this.markers.push(markerKey);
+    } else{
+        var markers = this.leafletCluster.GetMarkers();
 
-        switch (worker.statusPoint){
-            case 'win': marker.category = 0; break;
-            case 'draw': marker.category = 1; break;
-            case 'lost': marker.category = 2; break;
+        for(var i =0; i<markers.length; i++){
+            var mPos = markers[i].position;
+            if(mPos.lat === worker.latitude && mPos.lng === worker.longitude){
+                marker = markers[i];
+            }
         }
     }
 
-    this.leafletCluster.RegisterMarker(marker);
+    marker.data.icon = markerIconData.icon;
+    marker.data.popup = markerIconData.data;
+
+    switch (worker.statusPoint){
+        case 'win': marker.category = 0; break;
+        case 'draw': marker.category = 1; break;
+        case 'lost': marker.category = 2; break;
+    }
+
+    if(newMarker){
+        this.leafletCluster.RegisterMarker(marker);
+    }
+
     this.leafletCluster.ProcessView();
+    this.leafletCluster.RedrawIcons();
 
     this.leafletMap.addLayer(this.leafletCluster);
 };
@@ -135,20 +147,16 @@ Map.prototype.setupMarkerCluster = function(){
         createShadow: function () {
             return null;
         },
-//TODO:need cleanup
-        draw: function(canvas, width, height) {
+
+        draw: function(canvas) {
             var colors = [
                 '#23AC20', //win
                 '#767676', //draw
                 '#CA2038'  //lost
-            ],pi2 = Math.PI * 2;
-
-            var lol = 0;
-            var start = 0;
+            ];
+            var pi2 = Math.PI * 2;
 
             for (var i = 0, l = this.population; i < l; ++i) {
-
-                var size = this.stats[i] / this.population;
 
                 if ( this.population > 0) {
 
@@ -156,22 +164,13 @@ Map.prototype.setupMarkerCluster = function(){
 
                     var angle = Math.PI/4*i;
                     var posx = Math.cos(angle) * 18, posy = Math.sin(angle) * 18;
+                    var r = 3;
 
-
-                    var xa = 0, xb = 1, ya = 1, yb = 2;
-
-                     var r = ya + ( 1 - xa) * ((yb - ya) / (xb - xa));
-                    //var r = ya + size * (yb - ya);
-
-
-                    canvas.moveTo(posx, posy);
                     canvas.arc(24+posx,24+posy, r, 0, pi2);
                     canvas.fillStyle = colors[this.markers[i].category];
                     canvas.fill();
                     canvas.closePath();
                 }
-
-
             }
 
             canvas.beginPath();
