@@ -39,7 +39,7 @@ Map.prototype.setWorkerLocationWithCluster = function(worker){
     var markerIconData = this.getWorkerIconData(worker);
     var markerKey = md5(worker.latitude + worker.longitude);
     var marker;
-
+//TODO:fix if markers already exist
     if(this.markers.indexOf(markerKey) >= 0){
         marker = PruneCluster.Marker(worker.latitude, worker.longitude);
         marker.data.popup = markerIconData.data;
@@ -105,11 +105,14 @@ Map.prototype.getWorkerIconData = function(worker){
  * this will be collecte the marker in the near
  */
 Map.prototype.setupMarkerCluster = function(){
+    PruneCluster.Cluster.ENABLE_MARKERS_LIST = true;
+
     this.leafletCluster.BuildLeafletClusterIcon = function(cluster) {
         var e = new L.Icon.MarkerCluster();
 
         e.stats = cluster.stats;
         e.population = cluster.population;
+        e.markers = cluster.GetClusterMarkers();
         return e;
     };
 
@@ -132,7 +135,7 @@ Map.prototype.setupMarkerCluster = function(){
         createShadow: function () {
             return null;
         },
-
+//TODO:need cleanup
         draw: function(canvas, width, height) {
             var colors = [
                 '#23AC20', //win
@@ -143,12 +146,11 @@ Map.prototype.setupMarkerCluster = function(){
             var lol = 0;
             var start = 0;
 
-            for (var i = 0, l = colors.length; i < l; ++i) {
+            for (var i = 0, l = this.population; i < l; ++i) {
 
                 var size = this.stats[i] / this.population;
 
-
-                if (size > 0) {
+                if ( this.population > 0) {
 
                     canvas.beginPath();
 
@@ -156,15 +158,15 @@ Map.prototype.setupMarkerCluster = function(){
                     var posx = Math.cos(angle) * 18, posy = Math.sin(angle) * 18;
 
 
-                    var xa = 0, xb = 1, ya = 4, yb = 8;
+                    var xa = 0, xb = 1, ya = 1, yb = 2;
 
-                    // var r = ya + (size - xa) * ((yb - ya) / (xb - xa));
-                    var r = ya + size * (yb - ya);
+                     var r = ya + ( 1 - xa) * ((yb - ya) / (xb - xa));
+                    //var r = ya + size * (yb - ya);
 
 
-                    //canvas.moveTo(posx, posy);
+                    canvas.moveTo(posx, posy);
                     canvas.arc(24+posx,24+posy, r, 0, pi2);
-                    canvas.fillStyle = colors[i];
+                    canvas.fillStyle = colors[this.markers[i].category];
                     canvas.fill();
                     canvas.closePath();
                 }
