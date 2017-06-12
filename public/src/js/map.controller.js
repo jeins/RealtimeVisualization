@@ -17,7 +17,20 @@ function Map(){
     this.svg = d3.select("#map").select("svg");
     this.mapLayer = this.svg.append("g");
     this.markers = [];
+    this.clustersCoordinate = [];
 }
+
+Map.prototype.getLeaflet = function () {
+    return this.leafletMap;
+};
+
+Map.prototype.getCluster = function () {
+    return this.leafletCluster;
+};
+
+Map.prototype.isClusterDisplayed = function () {
+    return this.clustersCoordinate;
+};
 
 /**
  * set master location from latitude and longitude
@@ -118,6 +131,7 @@ Map.prototype.getWorkerIconData = function(worker){
  */
 Map.prototype.setupMarkerCluster = function(){
     PruneCluster.Cluster.ENABLE_MARKERS_LIST = true;
+    var self = this;
 
     this.leafletCluster.BuildLeafletClusterIcon = function(cluster) {
         var e = new L.Icon.MarkerCluster();
@@ -125,6 +139,8 @@ Map.prototype.setupMarkerCluster = function(){
         e.stats = cluster.stats;
         e.population = cluster.population;
         e.markers = cluster.GetClusterMarkers();
+
+        self.clustersCoordinate = {clusterPos: cluster.position, markers: cluster.GetClusterMarkers()};
         return e;
     };
 

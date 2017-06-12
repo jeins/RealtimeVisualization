@@ -6,6 +6,7 @@
  * @constructor
  */
 function Action(map) {
+    this.m = map;
     this.map = map.leafletMap;
     this.mapLayer = map.mapLayer;
     this.animationTime = 2500;
@@ -19,7 +20,8 @@ function Action(map) {
         win: '#23AC20',
         lost: '#CA2038',
         draw: '#767676'
-    }
+    };
+    this.lineCollection = {};
 }
 
 /**
@@ -125,6 +127,8 @@ Action.prototype.shoot = function(shots){
         y: this.map.latLngToLayerPoint(masterCoordinates).y
     }];
 
+    this.drawLine(shots);
+
     shotContainer.selectAll(".path")
         .data([2, 3, 4])
         .enter()
@@ -217,4 +221,66 @@ Action.prototype.getSecondStageInterpolater = function(d, totalLength){
     return function(t) {
         return "0 " + (interpolate(t) + offset) + " " + length + " " + (totalLength - interpolate(t));
     };
+};
+
+
+Action.prototype.drawLine = function(data){
+    var lineColor = [
+        '#FFCCCC',
+        '#FF9999',
+        '#FF6666',
+        '#FF3333'
+    ];
+    var latLong = [
+        [data.worker.latitude, data.worker.longitude],
+        [data.master.latitude, data.master.longitude]
+    ];
+
+    var key = md5(latLong);
+    var color = null;
+    var newKey = false;
+    var redraw = false;
+    var remove = false;
+    var d = new Date();
+    var currTime = d.getHours() + '.' + d.getMinutes();
+
+    var d = this.m.isClusterDisplayed();
+    if(d.markers){
+        var isClusterExist = false;
+        for(var i=0; i<d.markers.length; i++){
+            if(data.worker.latitude === d.markers[i].position.lat && data.worker.longitude === d.markers[i].position.lng){
+                latLong[0] = [d.clusterPos.lat, d.clusterPos.lng];
+                isClusterExist = true;
+            }
+
+            if(isClusterExist){
+                var tmpLatLong = latLong;
+                tmpLatLong[0] = [d.markers[i].position.lat, d.markers[i].position.lng];
+                this.map.removeLayer(L.polyline(latLong));
+            }
+        }
+    }
+
+    if(!this.lineCollection.hasOwnProperty(key)) {
+        this.lineCollection[key] = {count: 1, lastUpdate: currTime};
+    }
+    else {
+        this.lineCollection[key].count += 1;
+        this.lineCollection[key].lastUpdate = currTime;
+    }
+
+    switch (this.lineCollection[key].count){
+        case 3: color = lineColor[0]; redraw = true; break;
+        case 5: color = lineColor[1]; redraw = true; break;
+        case 8: color = lineColor[2]; redraw = true; break;
+        case 10: color = lineColor[3]; redraw = true; break;
+    }
+    this.lineCollection[key].color = color;
+
+    var line = L.polyline(latLong, {color: color});
+
+    if(redraw) {
+        this.map.removeLayer(line);
+        line.addTo(this.map);
+    }
 };
