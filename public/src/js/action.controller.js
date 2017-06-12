@@ -223,13 +223,15 @@ Action.prototype.getSecondStageInterpolater = function(d, totalLength){
     };
 };
 
-
+/**
+ * draw line between marker, if often data send
+ * @param data
+ */
 Action.prototype.drawLine = function(data){
     var lineColor = [
         '#FFCCCC',
         '#FF9999',
-        '#FF6666',
-        '#FF3333'
+        '#FF6666'
     ];
     var latLong = [
         [data.worker.latitude, data.worker.longitude],
@@ -238,11 +240,9 @@ Action.prototype.drawLine = function(data){
 
     var key = md5(latLong);
     var color = null;
-    var newKey = false;
     var redraw = false;
-    var remove = false;
     var d = new Date();
-    var currTime = d.getHours() + '.' + d.getMinutes();
+    var currTime = d.getHours() + '.' + d.getMinutes() + '.' + d.getSeconds();
 
     var d = this.m.isClusterDisplayed();
     if(d.markers){
@@ -268,19 +268,44 @@ Action.prototype.drawLine = function(data){
         this.lineCollection[key].count += 1;
         this.lineCollection[key].lastUpdate = currTime;
     }
+    this.lineCollection[key].pos = latLong;
 
     switch (this.lineCollection[key].count){
         case 3: color = lineColor[0]; redraw = true; break;
         case 5: color = lineColor[1]; redraw = true; break;
         case 8: color = lineColor[2]; redraw = true; break;
-        case 10: color = lineColor[3]; redraw = true; break;
     }
     this.lineCollection[key].color = color;
 
-    var line = L.polyline(latLong, {color: color});
+    console.log(this.lineCollection);
+
+    var line = L.polyline(this.lineCollection[key].pos, {color: this.lineCollection[key].color});
 
     if(redraw) {
         this.map.removeLayer(line);
-        line.addTo(this.map);
+        this.map.addLayer(line);
+    }
+
+    this.checkUpLine();
+};
+
+/**
+ * check up the line if no more data send remove the line
+ */
+Action.prototype.checkUpLine = function(){
+    var d = new Date();
+    for(var key in this.lineCollection){
+        if(!this.lineCollection.hasOwnProperty(key)) continue;
+
+        var pl = L.polyline(this.lineCollection[key].pos, {color: this.lineCollection[key].color});
+        var splitTime = this.lineCollection[key].lastUpdate.split('.');
+        var diffTime = d.getSeconds() - splitTime[2];
+
+        if(diffTime < 5 && this.lineCollection[key].count > 8){
+            this.map.removeLayer(pl);
+            this.lineCollection[key].count = 0;
+            // delete this.lineCollection[key];
+            console.log("rest line with key: " + key);
+        }
     }
 };

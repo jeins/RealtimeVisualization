@@ -20,14 +20,26 @@ function Map(){
     this.clustersCoordinate = [];
 }
 
+/**
+ * get leaflet
+ * @returns {*}
+ */
 Map.prototype.getLeaflet = function () {
     return this.leafletMap;
 };
 
+/**
+ * get marker cluster
+ * @returns {PruneClusterForLeaflet}
+ */
 Map.prototype.getCluster = function () {
     return this.leafletCluster;
 };
 
+/**
+ * get marker cluster information
+ * @returns {{clusterPos, markers}|*|Array}
+ */
 Map.prototype.isClusterDisplayed = function () {
     return this.clustersCoordinate;
 };
